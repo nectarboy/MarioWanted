@@ -102,6 +102,30 @@ var bundle = [
     ['incorrect', 'audio', 'src/sfx/incorrect.wav'],
     ['timer_add', 'audio', 'src/sfx/timer_add.wav'],
     ['star_get', 'audio', 'src/sfx/star_get.wav'],
+
+    ['mario_caught_0', 'audio', 'src/sfx/mario_caught_0.wav'],
+    ['mario_caught_1', 'audio', 'src/sfx/mario_caught_1.wav'],
+    ['mario_caught_2', 'audio', 'src/sfx/mario_caught_2.wav'],
+    ['mario_wrong', 'audio', 'src/sfx/mario_wrong.wav'],
+    ['mario_timeup', 'audio', 'src/sfx/mario_timeup.wav'],
+
+    ['luigi_caught_0', 'audio', 'src/sfx/luigi_caught_0.wav'],
+    ['luigi_caught_1', 'audio', 'src/sfx/luigi_caught_1.wav'],
+    ['luigi_caught_2', 'audio', 'src/sfx/luigi_caught_2.wav'],
+    ['luigi_wrong', 'audio', 'src/sfx/luigi_wrong.wav'],
+    ['luigi_timeup', 'audio', 'src/sfx/luigi_timeup.wav'],
+
+    ['wario_caught_0', 'audio', 'src/sfx/wario_caught_0.wav'],
+    ['wario_caught_1', 'audio', 'src/sfx/wario_caught_1.wav'],
+    ['wario_caught_2', 'audio', 'src/sfx/wario_caught_2.wav'],
+    ['wario_wrong', 'audio', 'src/sfx/wario_wrong.wav'],
+    ['wario_timeup', 'audio', 'src/sfx/wario_timeup.wav'],
+
+    ['yoshi_caught_0', 'audio', 'src/sfx/yoshi_caught_0.wav'],
+    ['yoshi_caught_1', 'audio', 'src/sfx/yoshi_caught_1.wav'],
+    ['yoshi_caught_2', 'audio', 'src/sfx/yoshi_caught_2.wav'],
+    ['yoshi_wrong', 'audio', 'src/sfx/yoshi_wrong.wav'],
+    ['yoshi_timeup', 'audio', 'src/sfx/yoshi_timeup.wav']
 ];
 Assets.loadAssetBundle(assets, bundle,
 (i) => {
@@ -136,31 +160,37 @@ class Sfx {
         this.loop = loop;
         this.loopStart = loopStart;
         this.loopEnd = loopEnd;
-        this.players = [];
+        this.refs = [];
     };
 
     stopAllPlaying() {
-        for (var i = 0; i < this.players.length; i++) {
-            this.players[i].stop();
+        for (var i = 0; i < this.refs.length; i++) {
+            this.refs[i].player.stop();
         }
-        this.players.length = 0;
+        this.refs.length = 0;
     }
-    play() {
-        var player = new Tone.Player(assets[this.id]).toDestination();
+    play(panning=0) {
+        var player = new Tone.Player(assets[this.id]);
+        var panner = new Tone.Panner(panning).toDestination();
+        player.chain(panner, Tone.Master);
         player.volume.value = this.volume;
         player.loop = this.loop;
         player.setLoopPoints(this.loopStart, this.loopEnd);
         player.start();
         player.seek(0);
 
-        this.players.push(player);
+        var ref = {
+            player: player,
+            panner: panner
+        };
+        this.refs.push(ref);
         var self = this;
         player.onstop = () => {
             if (!self.loop)
-                self.players.splice(self.players.indexOf(player), 1);
+                self.refs.splice(self.refs.indexOf(ref), 1);
         };
 
-        return player;
+        return ref;
     }
 }
 const sfx = {
@@ -172,7 +202,31 @@ const sfx = {
     'correct': new Sfx('correct'),
     'incorrect': new Sfx('incorrect'),
     'timer_add': new Sfx('timer_add'),
-    'star_get': new Sfx('star_get')
+    'star_get': new Sfx('star_get'),
+
+    'mario_caught_0':   new Sfx('mario_caught_0'),
+    'mario_caught_1':   new Sfx('mario_caught_1'),
+    'mario_caught_2':   new Sfx('mario_caught_2'),
+    'mario_wrong':      new Sfx('mario_wrong'),
+    'mario_timeup':     new Sfx('mario_timeup'),
+
+    'luigi_caught_0':   new Sfx('luigi_caught_0'),
+    'luigi_caught_1':   new Sfx('luigi_caught_1'),
+    'luigi_caught_2':   new Sfx('luigi_caught_2'),
+    'luigi_wrong':      new Sfx('luigi_wrong'),
+    'luigi_timeup':     new Sfx('luigi_timeup'),
+
+    'wario_caught_0':   new Sfx('wario_caught_0'),
+    'wario_caught_1':   new Sfx('wario_caught_1'),
+    'wario_caught_2':   new Sfx('wario_caught_2'),
+    'wario_wrong':      new Sfx('wario_wrong'),
+    'wario_timeup':     new Sfx('wario_timeup'),
+
+    'yoshi_caught_0':   new Sfx('yoshi_caught_0'),
+    'yoshi_caught_1':   new Sfx('yoshi_caught_1'),
+    'yoshi_caught_2':   new Sfx('yoshi_caught_2'),
+    'yoshi_wrong':      new Sfx('yoshi_wrong'),
+    'yoshi_timeup':     new Sfx('yoshi_timeup'),
 };
 
 const STATE_DRUMROLL = 1;
@@ -195,20 +249,40 @@ const PARTICLE_M10 = 2;
 
 const BRO_ASSETS = {};
 BRO_ASSETS[E_MARIO] = {
-    sprite: 'mario',
-    bigsprite: 'mario_big'
+    sprite:         'mario',
+    bigsprite:      'mario_big',
+    sfx_caught_0:   'mario_caught_0',
+    sfx_caught_1:   'mario_caught_1',
+    sfx_caught_2:   'mario_caught_2',
+    sfx_wrong:      'mario_wrong',
+    sfx_timeup:     'mario_timeup',
 };
 BRO_ASSETS[E_LUIGI] = {
-    sprite: 'luigi',
-    bigsprite: 'luigi_big'
+    sprite:         'luigi',
+    bigsprite:      'luigi_big',
+    sfx_caught_0:   'luigi_caught_0',
+    sfx_caught_1:   'luigi_caught_1',
+    sfx_caught_2:   'luigi_caught_2',
+    sfx_wrong:      'luigi_wrong',
+    sfx_timeup:     'luigi_timeup',
 };
 BRO_ASSETS[E_WARIO] = {
-    sprite: 'wario',
-    bigsprite: 'wario_big'
+    sprite:         'wario',
+    bigsprite:      'wario_big',
+    sfx_caught_0:   'wario_caught_0',
+    sfx_caught_1:   'wario_caught_1',
+    sfx_caught_2:   'wario_caught_2',
+    sfx_wrong:      'wario_wrong',
+    sfx_timeup:     'wario_timeup',
 };
 BRO_ASSETS[E_YOSHI] = {
-    sprite: 'yoshi',
-    bigsprite: 'yoshi_big'
+    sprite:         'yoshi',
+    bigsprite:      'yoshi_big',
+    sfx_caught_0:   'yoshi_caught_0',
+    sfx_caught_1:   'yoshi_caught_1',
+    sfx_caught_2:   'yoshi_caught_2',
+    sfx_wrong:      'yoshi_wrong',
+    sfx_timeup:     'yoshi_timeup',
 };
 
 var holdingclick = false;
@@ -232,6 +306,7 @@ function updateTime() {
         time--;
         if (time === 0) {
             sfx['timer_tick_urgent'].play();
+            bros[wantedbroi].playTimeupSfx();
             timeUpEvent();
         }
         else if (time <= 2) {
@@ -324,6 +399,27 @@ class Bro {
         this.bounce = false;
 
         this.invincibility = 0;
+    }
+
+    getPanningScale() {
+        return (2*this.x - W) / (W);
+    }
+
+    playCaughtSfx() {
+        if (level < 5)
+            sfx[BRO_ASSETS[this.bro].sfx_caught_0].play();
+        else if (level < 10)
+            sfx[BRO_ASSETS[this.bro].sfx_caught_1].play();
+        else
+            sfx[BRO_ASSETS[this.bro].sfx_caught_2].play();
+    }
+    playWrongSfx() {
+        var panning = this.getPanningScale();
+        sfx[BRO_ASSETS[this.bro].sfx_wrong].play(panning);
+    }
+    playTimeupSfx() {
+        var panning = this.getPanningScale();
+        sfx[BRO_ASSETS[this.bro].sfx_timeup].play(panning);
     }
 
     update() {
@@ -445,6 +541,7 @@ function checkIfClickedBro() {
         correctEvent();
         particles.push(new Particle(bros[wantedbroi].x, bros[wantedbroi].y, PARTICLE_P5));
         sfx['correct'].play();
+        bros[wantedbroi].playCaughtSfx();
         return;
     }
 
@@ -460,7 +557,11 @@ function checkIfClickedBro() {
             if (time <= 0) {
                 time = 0;
                 timeUpEvent();
+                bros[wantedbroi].playTimeupSfx();
                 timeupbyincorrect = true;
+            }
+            else {
+                bros[wantedbroi].playWrongSfx();
             }
             particles.push(new Particle(sorted[i].x, sorted[i].y, PARTICLE_M10));
             sfx['incorrect'].play();

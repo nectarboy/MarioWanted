@@ -169,8 +169,8 @@ function generateLevel_movingcrowd() {
     var wantedi = Helpers.randInt(0, bros.length-1);
     bros[wantedi].bro = wantedbro;
     bros[wantedi].z = 0;
-    bro.vx *= 0.9;
-    bro.vy *= 0.9;
+    bros[wantedi].vx *= 0.9;
+    bros[wantedi].vy *= 0.9;
 
     difficulty += (1 - difficulty) * 0.1;
 }
