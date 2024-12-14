@@ -110,7 +110,7 @@ class Loop {
                 if (!browservisibilitypaused) {
                     loop.start();
                 }
-                console.log('unhidden tab', browservisibilitypaused, this.paused); // THIS IS SO ANNOYING WHY DID I KEEP THIS SO LONG
+                //console.log('unhidden tab', browservisibilitypaused, this.paused); // THIS IS SO ANNOYING WHY DID I KEEP THIS SO LONG
             }
             else {
                 if (this.hidden)
@@ -119,7 +119,7 @@ class Loop {
 
                 browservisibilitypaused = this.paused;
                 loop.stop();
-                console.log('hidden tab', browservisibilitypaused, this.paused);
+                //console.log('hidden tab', browservisibilitypaused, this.paused);
             }
         });
         

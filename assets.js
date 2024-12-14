@@ -31,7 +31,6 @@ class Assets {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 var audioCtx = new AudioContext();
                 var audioFile = fetch(src).then(response => response.arrayBuffer()).then(buffer => audioCtx.decodeAudioData(buffer)).then(buffer => {
-                    console.log(buffer);
                     assetsobj[id] = buffer;
                     onLoad();
                 });

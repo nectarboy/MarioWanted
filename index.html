@@ -285,6 +285,8 @@ BRO_ASSETS[E_YOSHI] = {
     sfx_timeup:     'yoshi_timeup',
 };
 
+var sessionid = '';
+
 var holdingclick = false;
 
 var state = 0;
@@ -381,7 +383,7 @@ function selectNextWantedBro() {
         wantedbro = E_LUIGI; // "On level 10, Luigi is always the character having to be found."
     else
         wantedbro = getRandomBroType();
-    console.log('next wanted bro:', wantedbro);
+    //console.log('next wanted bro:', wantedbro);
 }
 
 var bros = [];
@@ -536,7 +538,7 @@ function checkIfClickedBro() {
         return;
 
     if (bros[wantedbroi].mouseIsInside(x,y - SH)) {
-        console.log('yes :)');
+        //console.log('yes :)');
         
         correctEvent();
         particles.push(new Particle(bros[wantedbroi].x, bros[wantedbroi].y, PARTICLE_P5));
@@ -551,7 +553,7 @@ function checkIfClickedBro() {
             continue;
 
         if (sorted[i].mouseIsInside(x,y - SH) && !sorted[i].invincibility) {
-            console.log('no :(');
+            //console.log('no :(');
             sorted[i].invincibility = INVINCIBILITY_DURATION;
             time -= 10;
             if (time <= 0) {
@@ -826,6 +828,11 @@ function update() {
 
             if ((level % 5) !== 0)
                 tick = DRUM_ROLL_DURATION - 30;
+
+            if (sessionid) {
+                fetch(`http://localhost:9000/advancesessionlevel?uuid=${sessionid}&level=${level}`);
+                console.log('Requesting to advance session level');
+            }
         }
 
         drawBg();
@@ -843,6 +850,17 @@ function update() {
 }
 
 function start() {
+    // Session
+    if (sessionid) {
+        fetch(`http://localhost:9000/endsession?uuid=${sessionid}`);
+        console.log('Requesting to close session');
+        sessionid = '';
+    }
+    fetch('http://localhost:9000/startsession').then(response => response.json()).then(json => {
+        sessionid = json;
+        console.log('Got session id', sessionid);
+    });
+
     Tone.start();
     sfx['bgm'].stopAllPlaying();
     sfx['bgm'].play();
